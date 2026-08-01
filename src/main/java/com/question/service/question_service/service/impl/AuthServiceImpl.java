@@ -5,7 +5,9 @@ import com.question.service.question_service.dto.request.RegisterRequest;
 import com.question.service.question_service.dto.response.AuthResponse;
 import com.question.service.question_service.exception.DuplicateResourceException;
 import com.question.service.question_service.exception.UnauthorizedException;
+import com.question.service.question_service.models.Company;
 import com.question.service.question_service.models.User;
+import com.question.service.question_service.repository.CompanyRepository;
 import com.question.service.question_service.repository.UserRepository;
 import com.question.service.question_service.security.JwtUtil;
 import com.question.service.question_service.service.AuthService;
@@ -13,6 +15,7 @@ import com.question.service.question_service.service.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +24,44 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    @Value("${Admin.key}")
+    private String adminKey;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
+    private final CompanyRepository companyRepository;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
         String email = request.getEmail().toLowerCase();
+        String key = request.getKey();
         if (userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("Email already registered: " + email);
         }
-
+        //ADMIN VALIDATION
+        if(request.getRole() == User.Role.ADMIN ) {
+            if(key==null || key.isEmpty()) {
+                throw new UnauthorizedException("Invalid key to register as ADMIN");
+            }
+            if(!key.equals(adminKey)) {
+                throw new UnauthorizedException("Invalid key to register as ADMIN");
+            }
+        }
+        //COMPANY ADMIN VALIDATION
+        String domain=email.split("@")[1];
+        Company company=companyRepository.findByEmailDomain(domain);
+        if(request.getRole() == User.Role.CAADMIN ) {
+            if(company==null) {
+                throw new UnauthorizedException("No company registered with your email domain: " + domain);
+            }
+            if(key==null || key.isEmpty()) {
+                throw new UnauthorizedException("Invalid key to register as COMPANY");
+            }
+            if(!key.equals(company.getCompanyKey())){
+                throw new UnauthorizedException("Invalid key to register as COMPANY");
+            }
+        }
         User.Role role = (request.getRole() != null) ? request.getRole() : User.Role.CANDIDATE;
 
         User user = User.builder()
@@ -40,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(email)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .company(company)
                 .build();
 
         user = userRepository.save(user);

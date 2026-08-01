@@ -24,4 +24,6 @@ public class RegisterRequest {
     private String password;
 
     private User.Role role = User.Role.CANDIDATE;
+
+    private String key;
 }
