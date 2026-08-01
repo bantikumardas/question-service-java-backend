@@ -1,0 +1,12 @@
+target/
+.git/
+.gitignore
+.github/
+.idea/
+.mvn/wrapper/maven-wrapper.jar
+*.iml
+.env
+data/
+h2data/
+*.md
+.DS_Store
