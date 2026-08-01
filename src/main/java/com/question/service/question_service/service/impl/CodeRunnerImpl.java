@@ -55,7 +55,7 @@ public class CodeRunnerImpl implements CodeRunner {
             try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 output = reader.lines().collect(Collectors.joining("\n"));
             }
-            System.out.println("Output : "+output);
+
             // 6. Wait with timeout
             boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
             CodeRunnerResponse response = new CodeRunnerResponse();
