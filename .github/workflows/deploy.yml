@@ -87,14 +87,27 @@ jobs:
           echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
           docker pull "$IMAGE"
 
+          docker network create app-net 2>/dev/null || true
+
+          if ! docker ps -a --format '{{.Names}}' | grep -qx redis; then
+            docker run -d \
+              --name redis \
+              --network app-net \
+              --restart unless-stopped \
+              -v ~/redisdata:/data \
+              redis:7-alpine --appendonly yes
+          fi
+
           docker rm -f app 2>/dev/null || true
           docker run -d \
             --name app \
+            --network app-net \
             -p 8080:8080 \
             --memory=650m \
             --restart unless-stopped \
             --env-file ~/.env \
             -e SPRING_JPA_HIBERNATE_DDL_AUTO=none \
+            -e REDIS_HOST=redis \
             -v ~/h2data:/root/.question-service \
             "$IMAGE"
 
