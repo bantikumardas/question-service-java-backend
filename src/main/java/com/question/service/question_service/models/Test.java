@@ -53,6 +53,17 @@ public class Test {
     @OrderBy("orderIndex ASC")
     private List<CodingQuestion> codingQuestions;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = true)
+    private Company company;
+
+    @Column(name = "is_created_by_admin", nullable = false)
+    private Boolean isCreatedByAdmin;
+
+    @Column(name = "is_created_by_ca_admin", nullable = false)
+    private Boolean isCreatedByCAAdmin;
+
+
     public enum Status {
         DRAFT, ACTIVE, ARCHIVED
     }

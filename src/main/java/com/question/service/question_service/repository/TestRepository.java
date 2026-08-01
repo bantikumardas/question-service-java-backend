@@ -14,4 +14,6 @@ public interface TestRepository extends JpaRepository<Test, UUID> {
     boolean existsByTestName(String testName);
 
     Page<Test> findByTestNameContainingIgnoreCase(String query, Pageable pageable);
+    Page<Test> findByTestNameContainingIgnoreCaseAndCompany_CompanyId(String query, UUID companyId, Pageable pageable);
+    Page<Test> findByCompany_CompanyId(UUID companyId, Pageable pageable);
 }

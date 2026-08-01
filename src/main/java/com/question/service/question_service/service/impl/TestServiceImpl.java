@@ -41,16 +41,17 @@ public class TestServiceImpl implements TestService {
         if (testRepository.existsByTestName(request.getTestName())) {
             throw new DuplicateResourceException("Test with name '" + request.getTestName() + "' already exists");
         }
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (userName == null || userName.isEmpty()) {
-            throw new BadRequestException("You are not authorized to perform this action");
-        }
-        User user = userRepository.findByUserId(UUID.fromString(userName))
-                .orElseThrow(() -> new BadRequestException("User not found with id: " + userName));
+        User user = getCurrentUser();
+        Boolean isAdmin = user.getRole() == User.Role.ADMIN;
+        Boolean isCaAdmin = user.getRole() == User.Role.CAADMIN;
+        Company company = user.getCompany();
         Test test = Test.builder()
                 .testName(request.getTestName())
                 .totalTimeSeconds((long) request.getTotalTimeMinute() * 60)
                 .createdBy(user.getUserId())
+                .isCreatedByCAAdmin(isCaAdmin)
+                .isCreatedByAdmin(isAdmin)
+                .company(company)
                 .build();
 
         Test saved = testRepository.save(test);
@@ -60,16 +61,33 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TestResponse> getAllTest(int page, int size, String sortBy, String status, String sortDir, String query) {
+        User user = getCurrentUser();
+        if(user.getRole() != User.Role.ADMIN && user.getRole() != User.Role.CAADMIN) {
+            throw new UnauthorizedException("You are not authorized to perform this action");
+        }
         Sort sort = sortDir.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Test> testPage;
         if (query != null && !query.isEmpty()) {
-            testPage = testRepository.findByTestNameContainingIgnoreCase(query, pageable);
+            if(user.getRole() == User.Role.ADMIN) {
+                testPage = testRepository.findByTestNameContainingIgnoreCase(query, pageable);
+            } else if(user.getRole() == User.Role.CAADMIN) {
+                testPage = testRepository.findByTestNameContainingIgnoreCaseAndCompany_CompanyId(query, user.getCompany().getCompanyId(), pageable);
+            } else {
+                throw new UnauthorizedException("You are not authorized to perform this action");
+            }
         } else {
-            testPage = testRepository.findAll(pageable);
+            if(user.getRole() == User.Role.ADMIN) {
+                testPage = testRepository.findAll(pageable);
+            } else if(user.getRole() == User.Role.CAADMIN) {
+                testPage = testRepository.findByCompany_CompanyId(user.getCompany().getCompanyId(), pageable);
+            } else {
+                throw new UnauthorizedException("You are not authorized to perform this action");
+            }
         }
         Page<TestResponse> responsePage = testPage.map(test ->
                 TestResponse.builder()
@@ -87,6 +105,7 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AdminTestResponse getAllQuestionFromTest(String testId) {
         Test test = testRepository.findById(UUID.fromString(testId))
                 .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
@@ -173,9 +192,7 @@ public class TestServiceImpl implements TestService {
     @Override
     @Transactional(readOnly = true)
     public String sendTestInvite(UUID testId, String emails) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUserId(UUID.fromString(userId))
-                .orElseThrow(() -> new BadRequestException("User not found with id: " + userId));
+        User user = getCurrentUser();
         Test test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
 
@@ -223,6 +240,16 @@ public class TestServiceImpl implements TestService {
         }
 
         return emailSet;
+    }
+
+    public User getCurrentUser() {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (userName == null || userName.isEmpty()) {
+            throw new BadRequestException("You are not authorized to perform this action");
+        }
+        User user = userRepository.findByUserId(UUID.fromString(userName))
+                .orElseThrow(() -> new BadRequestException("User not found with id: " + userName));
+        return user;
     }
 
 }

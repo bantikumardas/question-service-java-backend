@@ -82,7 +82,8 @@ logging:
 frontend:
   baseurl: ${FRONEND_BASE_URL}
 
-
+Admin:
+  key: ${ADMIN_KEY}
 management:
   endpoints:
     web:

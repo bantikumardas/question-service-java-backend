@@ -45,7 +45,11 @@ public class User {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Test> tests;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
     public enum Role {
-        ADMIN, CANDIDATE
+        ADMIN, CANDIDATE, CAADMIN
     }
 }
