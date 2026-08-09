@@ -89,6 +89,10 @@ jobs:
 
           docker network create app-net 2>/dev/null || true
 
+          # Ensure Caddy is attached to app-net so it can resolve the "app" hostname.
+          # Idempotent: succeeds silently if caddy is already connected or not present.
+          docker network connect app-net caddy 2>/dev/null || true
+
           if ! docker ps -a --format '{{.Names}}' | grep -qx redis; then
             docker run -d \
               --name redis \
