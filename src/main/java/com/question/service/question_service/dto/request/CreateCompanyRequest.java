@@ -13,4 +13,6 @@ public class CreateCompanyRequest {
     private String companyName;
     private String emailDomain;
     private String phoneNumber;
+    private String logoUrl;
+    private String email;
 }

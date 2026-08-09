@@ -11,4 +11,9 @@ import java.util.UUID;
 public interface TestCaseRepository extends JpaRepository<TestCase, UUID> {
 
     List<TestCase> findByCodingQuestion_CodingQuestionIdInAndIsHiddenFalse(List<UUID> codingQuestionIds);
+
+    List<TestCase> findByCodingQuestion_CodingQuestionId(UUID codingQuestionId);
+
+
+    void deleteByCodingQuestion_CodingQuestionId(UUID codingQuestionId);
 }

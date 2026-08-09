@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Test {
+public class Test implements Comparable<Test>{
 
     @Id
     @GeneratedValue
@@ -63,8 +63,17 @@ public class Test {
     @Column(name = "is_created_by_ca_admin", nullable = false)
     private Boolean isCreatedByCAAdmin;
 
+    @Override
+    public int compareTo(Test o) {
+        return Integer.compare(this.status.getPriority(), o.status.getPriority());
+    }
 
+
+    @Getter
+    @AllArgsConstructor
     public enum Status {
-        DRAFT, ACTIVE, ARCHIVED
+        ACTIVE(0), DRAFT(1), ARCHIVED(2);
+
+        private final int priority;
     }
 }

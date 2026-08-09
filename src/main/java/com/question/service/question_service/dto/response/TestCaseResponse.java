@@ -18,6 +18,7 @@ public class TestCaseResponse {
     private String expectedOutput;
     private String explanation;
     private Boolean isHidden;
+    private Boolean isExample;
 
     public static TestCaseResponse from(TestCase tc) {
         return TestCaseResponse.builder()
@@ -27,6 +28,7 @@ public class TestCaseResponse {
                 .expectedOutput(tc.getExpectedOutput())
                 .explanation(tc.getExplanation())
                 .isHidden(tc.getIsHidden())
+                .isExample(tc.getIsExample())
                 .build();
     }
 }

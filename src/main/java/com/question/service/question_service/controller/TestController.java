@@ -39,10 +39,11 @@ public class TestController {
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdTime") String sortBy,
             @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value="sortDir", defaultValue = "desc") String sortDir
+            @RequestParam(value="sortDir", defaultValue = "desc") String sortDir,
+            @RequestParam(value = "companyId", required = false) UUID companyId
     ) {
         // Implement logic to retrieve all tests
-        Page<TestResponse> responses=testService.getAllTest(page, size, sortBy, status, sortDir, query);
+        Page<TestResponse> responses=testService.getAllTest(page, size, sortBy, status, sortDir, query, companyId);
         return ResponseEntity.ok(ApiResponse.success("Tests retrieved successfully", PagedResponse.from(responses)));
     }
 

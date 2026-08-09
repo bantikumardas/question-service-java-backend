@@ -18,4 +18,6 @@ public class CreateTestRequest {
     @Min(value = 1, message = "Total time must be at least 1 minute")
     @Max(value = 480, message = "Total time must not exceed 480 minutes")
     private Integer totalTimeMinute;
+
+    private UUID companyId;
 }

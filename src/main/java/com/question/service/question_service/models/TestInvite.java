@@ -3,8 +3,10 @@ package com.question.service.question_service.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -25,7 +27,6 @@ public class TestInvite {
     @ManyToOne
     @JoinColumn(name = "test_test_id", nullable = false)
     private Test test;
-
 
     @ManyToOne
     @JoinColumn(name = "invited_by_user_id", nullable = false)
@@ -48,6 +49,14 @@ public class TestInvite {
     @Column(name = "attempt_count", nullable = false)
     @Builder.Default
     private Integer attemptCount = 0;
+
+    @Column(name = "invitation_sent_time", updatable = false, nullable = false)
+    @CreationTimestamp
+    private LocalDateTime invitationSentTime;
+
+    @Column(name = "updated_time", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime updatedTime;
 
     public enum Status{
         PENDING, INPROGRESS, SUCCESS, FAILED
