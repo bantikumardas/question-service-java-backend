@@ -24,6 +24,7 @@ public class CodingQuestionResponse {
     private String difficulty;
     private Integer marks;
     private Integer orderIndex;
+    private List<TestCaseResponse> testCaseResponse;
 
     public static CodingQuestionResponse from(CodingQuestion q) {
         return CodingQuestionResponse.builder()

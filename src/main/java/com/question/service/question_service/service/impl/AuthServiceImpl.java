@@ -13,6 +13,7 @@ import com.question.service.question_service.security.JwtUtil;
 import com.question.service.question_service.service.AuthService;
 import com.question.service.question_service.service.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final CompanyRepository companyRepository;
 
     @Override
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
         String email = request.getEmail().toLowerCase();
         String key = request.getKey();
@@ -80,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         String email = request.getEmail().toLowerCase();
         User user = userRepository.findByEmail(email)
@@ -117,6 +120,8 @@ public class AuthServiceImpl implements AuthService {
                 .email(user.getEmail())
                 .name(user.getName())
                 .role(user.getRole().name())
+                .logoUrl(user.getCompany() != null ? user.getCompany().getLogoUrl() : null)
+                .companyName(user.getCompany() != null ? user.getCompany().getName() : null)
                 .build();
     }
 }

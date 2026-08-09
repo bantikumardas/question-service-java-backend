@@ -11,7 +11,7 @@ public interface TestService {
 
     TestResponse createTest(CreateTestRequest request);
 
-    Page<TestResponse> getAllTest(int page, int size, String sortBy, String status, String sortDir, String query);
+    Page<TestResponse> getAllTest(int page, int size, String sortBy, String status, String sortDir, String query, UUID companyId);
 
     AdminTestResponse getAllQuestionFromTest(String testId);
 

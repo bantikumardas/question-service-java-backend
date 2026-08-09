@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,6 +28,7 @@ public class CompanyServiceImpl implements CompanyService {
         String companyName = request.getCompanyName();
         String emailDomain = request.getEmailDomain();
         String phoneNumber = request.getPhoneNumber();
+        String email=request.getEmail();
         if(companyRepository.findByEmailDomain(emailDomain) != null){
             throw new BadRequestException("Email domain already exists");
         }
@@ -37,11 +39,15 @@ public class CompanyServiceImpl implements CompanyService {
         if(currentUser.getRole() != User.Role.ADMIN){
             throw new BadRequestException("You are not authorized to perform this action");
         }
+
         Company company=Company.builder()
                 .name(companyName)
                 .emailDomain(emailDomain)
                 .phone(phoneNumber)
                 .companyKey(generateCompanyKey(4))
+                .createdBy(currentUser)
+                .logoUrl(request.getLogoUrl())
+                .email(email)
                 .build();
 
         Company savedCompany=companyRepository.save(company);
@@ -52,9 +58,42 @@ public class CompanyServiceImpl implements CompanyService {
                 .emailDomain(savedCompany.getEmailDomain())
                 .phoneNumber(savedCompany.getPhone())
                 .companyKey(savedCompany.getCompanyKey())
+                .isActive(savedCompany.getIsActive())
+                .createdDate(savedCompany.getCreatedTime())
+                .updatedDate(savedCompany.getUpdatedTime())
+                .logoUrl(savedCompany.getLogoUrl())
+                .maxActiveTests(savedCompany.getMaxActiveTests())
+                .isSubscriptionActive(savedCompany.getIsSubscriptionActive())
+                .subscriptionStartDate(savedCompany.getSubscriptionStartDate())
+                .subscriptionEndDate(savedCompany.getSubscriptionExpiryDate())
                 .build();
         return response;
 
+    }
+
+    @Override
+    public List<CompanyResponse> getAllCompanies() {
+        User currentUser = getCurrentUser();
+        if(currentUser.getRole() != User.Role.ADMIN){
+            throw new BadRequestException("You are not authorized to perform this action");
+        }
+        List<Company> companies = companyRepository.findAll();
+        List<CompanyResponse> responses = companies.stream().map(company -> CompanyResponse.builder()
+                .id(company.getCompanyId())
+                .companyName(company.getName())
+                .emailDomain(company.getEmailDomain())
+                .phoneNumber(company.getPhone())
+                .companyKey(company.getCompanyKey())
+                .isActive(company.getIsActive())
+                .createdDate(company.getCreatedTime())
+                .updatedDate(company.getUpdatedTime())
+                .logoUrl(company.getLogoUrl())
+                .maxActiveTests(company.getMaxActiveTests())
+                .isSubscriptionActive(company.getIsSubscriptionActive())
+                .subscriptionStartDate(company.getSubscriptionStartDate())
+                .subscriptionEndDate(company.getSubscriptionExpiryDate())
+                .build()).toList();
+        return responses;
     }
 
     public User getCurrentUser() {

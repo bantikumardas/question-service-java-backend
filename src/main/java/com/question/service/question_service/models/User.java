@@ -4,7 +4,9 @@ package com.question.service.question_service.models;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +50,10 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @Column(name = "updated_time", nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedTime;
 
     public enum Role {
         ADMIN, CANDIDATE, CAADMIN

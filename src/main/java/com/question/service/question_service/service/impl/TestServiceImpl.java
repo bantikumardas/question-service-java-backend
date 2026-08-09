@@ -7,8 +7,7 @@ import com.question.service.question_service.exception.DuplicateResourceExceptio
 import com.question.service.question_service.exception.ResourceNotFoundException;
 import com.question.service.question_service.exception.UnauthorizedException;
 import com.question.service.question_service.models.*;
-import com.question.service.question_service.repository.TestRepository;
-import com.question.service.question_service.repository.UserRepository;
+import com.question.service.question_service.repository.*;
 import com.question.service.question_service.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +32,8 @@ public class TestServiceImpl implements TestService {
     private final TestRepository testRepository;
     private final UserRepository userRepository;
     private final TestInviteDispatcher testInviteDispatcher;
+    private final TestCaseRepository testCaseRepository;
+    private final CompanyRepository companyRepository;
 
 
     @Override
@@ -45,6 +46,13 @@ public class TestServiceImpl implements TestService {
         Boolean isAdmin = user.getRole() == User.Role.ADMIN;
         Boolean isCaAdmin = user.getRole() == User.Role.CAADMIN;
         Company company = user.getCompany();
+        if(isAdmin){
+            if(request.getCompanyId() == null){
+                throw new BadRequestException("Company Id is required");
+            }
+            company = companyRepository.findById(request.getCompanyId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + request.getCompanyId()));
+        }
         Test test = Test.builder()
                 .testName(request.getTestName())
                 .totalTimeSeconds((long) request.getTotalTimeMinute() * 60)
@@ -62,11 +70,15 @@ public class TestServiceImpl implements TestService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<TestResponse> getAllTest(int page, int size, String sortBy, String status, String sortDir, String query) {
+    public Page<TestResponse> getAllTest(int page, int size, String sortBy, String status, String sortDir, String query, UUID companyId) {
         User user = getCurrentUser();
         if(user.getRole() != User.Role.ADMIN && user.getRole() != User.Role.CAADMIN) {
             throw new UnauthorizedException("You are not authorized to perform this action");
         }
+        if(companyId==null && user.getRole() == User.Role.ADMIN) {
+            throw new UnauthorizedException("You are ADMIN, you must provide companyId to get all tests");
+        }
+        Company company = companyId != null ? companyRepository.findById(companyId).orElse(null) : null;
         Sort sort = sortDir.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
@@ -88,6 +100,13 @@ public class TestServiceImpl implements TestService {
             } else {
                 throw new UnauthorizedException("You are not authorized to perform this action");
             }
+        }
+        if(company!=null) {
+            List<Test> filtered = testPage.getContent().stream()
+                    .filter(test -> test.getCompany() != null
+                            && test.getCompany().getCompanyId().equals(companyId))
+                    .collect(Collectors.toList());
+            testPage = new PageImpl<>(filtered, testPage.getPageable(), filtered.size());
         }
         Page<TestResponse> responsePage = testPage.map(test ->
                 TestResponse.builder()
@@ -134,6 +153,11 @@ public class TestServiceImpl implements TestService {
         List<CodingQuestionResponse> codingQuestionResponses = new ArrayList<>();
         if (test.getCodingQuestions() != null) {
             for (CodingQuestion cq : test.getCodingQuestions()) {
+                List<TestCase> testCases=testCaseRepository.findByCodingQuestion_CodingQuestionId(cq.getCodingQuestionId());
+                List<TestCaseResponse> testCaseResponses = new ArrayList<>();
+                for (TestCase tc : testCases) {
+                    testCaseResponses.add(TestCaseResponse.from(tc));
+                }
                 codingQuestionResponses.add(CodingQuestionResponse.builder()
                         .codingQuestionId(cq.getCodingQuestionId())
                         .testId(cq.getTest().getTestId())
@@ -146,6 +170,7 @@ public class TestServiceImpl implements TestService {
                         .difficulty(cq.getDifficulty().name())
                         .marks(cq.getMarks())
                         .orderIndex(cq.getOrderIndex())
+                                .testCaseResponse(testCaseResponses)
                         .build());
             }
         }

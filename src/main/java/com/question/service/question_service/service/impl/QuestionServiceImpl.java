@@ -100,6 +100,22 @@ public class QuestionServiceImpl implements QuestionService {
         CodingQuestion saved = codingQuestionRepository.save(codingQuestion);
         log.info("Added coding questionId={} to testId={}", saved.getCodingQuestionId(), request.getTestId());
 
+        if (request.getCodingQuestionId() != null) {
+            testCaseRepository.deleteByCodingQuestion_CodingQuestionId(saved.getCodingQuestionId());
+        }
+
+        for (AddTestCaseRequest testCaseRequest : request.getTestCases()) {
+            TestCase testCase = TestCase.builder()
+                    .codingQuestion(saved)
+                    .input(testCaseRequest.getInput())
+                    .expectedOutput(testCaseRequest.getExpectedOutput())
+                    .explanation(testCaseRequest.getExplanation())
+                    .isHidden(testCaseRequest.getIsHidden())
+                    .isExample(testCaseRequest.getIsExample())
+                    .build();
+            testCaseRepository.save(testCase);
+        }
+
         return CodingQuestionResponse.from(saved);
     }
 
@@ -116,6 +132,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .expectedOutput(request.getExpectedOutput())
                 .explanation(request.getExplanation())
                 .isHidden(request.getIsHidden())
+                .isExample(request.getIsExample())
                 .build();
 
         TestCase saved = testCaseRepository.save(testCase);
