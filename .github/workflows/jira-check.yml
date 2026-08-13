@@ -1,0 +1,70 @@
+name: PR JIRA Check
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [ main ]
+
+jobs:
+  jira-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract & validate JIRA ID
+        id: jira
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Template line: "Jira ID :" followed by [KAN-7]
+          KEY=$(echo "$PR_BODY" | grep -oE '\[[A-Z]+-[0-9]+\]' | head -1 | tr -d '[]')
+          if [ -z "$KEY" ]; then
+            echo "::error::PR description must contain a JIRA ID like [KAN-7]"
+            exit 1
+          fi
+          echo "Found JIRA ID: $KEY"
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+
+      - name: Sync PR details to JIRA
+        env:
+          JIRA_BASE:  ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER:  ${{ secrets.JIRA_USER }}
+          JIRA_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          PR_URL:     ${{ github.event.pull_request.html_url }}
+          PR_TITLE:   ${{ github.event.pull_request.title }}
+          SHA:        ${{ github.event.pull_request.head.sha }}
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/resp.txt -w "%{http_code}" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            -X POST "$JIRA_BASE/rest/api/2/issue/${{ steps.jira.outputs.key }}/comment" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                  --arg body "PR: $PR_URL"$'\n'"Title: $PR_TITLE"$'\n'"Commit: $SHA" \
+                  '{body: $body}')")
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response body:"
+          cat /tmp/resp.txt
+          echo "=== Base URL check ==="
+          echo "JIRA_BASE=[$JIRA_BASE]"
+
+          echo "=== Raw /myself response ==="
+          curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/myself"
+          echo ""
+          echo "=== /myself HTTP status ==="
+          curl -s -o /dev/null -w "%{http_code}\n" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/myself"
+          echo "Token belongs to:"
+          curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/myself" | jq '{email: .emailAddress, name: .displayName}'
+
+          echo "Can this token see KAN-7?"
+          curl -s -o /dev/null -w "KAN-7 status: %{http_code}\n" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/issue/KAN-7"
+
+          echo "Can this token see KAN-12?"
+          curl -s -o /dev/null -w "KAN-12 status: %{http_code}\n" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/issue/KAN-12"
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            exit 1
+          fi
