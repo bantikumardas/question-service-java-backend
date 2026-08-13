@@ -31,9 +31,16 @@ jobs:
           PR_TITLE:   ${{ github.event.pull_request.title }}
           SHA:        ${{ github.event.pull_request.head.sha }}
         run: |
-          curl -sf -u "$JIRA_USER:$JIRA_TOKEN" \
+          HTTP_CODE=$(curl -s -o /tmp/resp.txt -w "%{http_code}" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
             -X POST "$JIRA_BASE/rest/api/2/issue/${{ steps.jira.outputs.key }}/comment" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
                   --arg body "PR: $PR_URL"$'\n'"Title: $PR_TITLE"$'\n'"Commit: $SHA" \
-                  '{body: $body}')"
+                  '{body: $body}')")
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response body:"
+          cat /tmp/resp.txt
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            exit 1
+          fi
