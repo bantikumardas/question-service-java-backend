@@ -41,6 +41,19 @@ jobs:
           echo "HTTP status: $HTTP_CODE"
           echo "Response body:"
           cat /tmp/resp.txt
+          echo "Token belongs to:"
+          curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/myself" | jq '{email: .emailAddress, name: .displayName}'
+
+          echo "Can this token see KAN-7?"
+          curl -s -o /dev/null -w "KAN-7 status: %{http_code}\n" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/issue/KAN-7"
+
+          echo "Can this token see KAN-12?"
+          curl -s -o /dev/null -w "KAN-12 status: %{http_code}\n" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/issue/KAN-12"
           if [ "$HTTP_CODE" -ge 400 ]; then
             exit 1
           fi

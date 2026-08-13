@@ -3,7 +3,7 @@ name: Pull Request Checks
 on:
   pull_request:
     branches: [ main ]
-    types: [opened, edited, reopened, synchronize]
+    types: [opened, synchronize]
 
 jobs:
   build-question-service:
