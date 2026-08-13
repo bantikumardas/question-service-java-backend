@@ -26,22 +26,27 @@ public class TestQuestion {
     @JoinColumn(name = "test_id", nullable = false)
     private Test test;
 
-    @Column(name = "question", nullable = false, columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "question", nullable = false)
     private String question;
 
     @Column(name = "question_image_url", length = 500)
     private String questionImageUrl;
 
-    @Column(name = "option_a", nullable = false, columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "option_a", nullable = false)
     private String optionA;
 
-    @Column(name = "option_b", nullable = false, columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "option_b", nullable = false)
     private String optionB;
 
-    @Column(name = "option_c", nullable = false, columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "option_c", nullable = false)
     private String optionC;
 
-    @Column(name = "option_d", nullable = false, columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "option_d", nullable = false)
     private String optionD;
 
     @Enumerated(EnumType.STRING)

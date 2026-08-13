@@ -3,18 +3,11 @@ package com.question.service.question_service.repository;
 import com.question.service.question_service.models.Company;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// Reuses the app's already-migrated dev H2 file (see application.yaml) instead of a fresh
-// embedded database: a pre-existing mismatch between the Flyway schema and the
-// CodingQuestion entity's LONGTEXT column definition fails Hibernate's schema validation
-// against a freshly-migrated embedded H2. @DataJpaTest still wraps each test in a rolled-back
-// transaction, so this does not persist data into the dev database.
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CompanyRepositoryTest {
 
     @Autowired
