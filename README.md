@@ -56,7 +56,8 @@ Configuration lives in `src/main/resources/application.yaml` and is overridable 
 | `INVITE_POOL_CORE` / `INVITE_POOL_MAX` / `INVITE_POOL_QUEUE` | Invite dispatcher thread pool sizing | `5` / `20` / `500` |
 | `JWT_SECRET` | JWT signing secret | dev default (override in prod) |
 | `JWT_EXPIRATION_MS` | JWT expiration (ms) | `86400000` |
-| `FRONEND_BASE_URL` | Frontend base URL (used in invite links, etc.) | _required_ |
+| `FRONEND_BASE_URL` | Frontend base URL (used in invite links, etc.) | `http://localhost:5173` (override in prod) |
+| `ADMIN_KEY` | Key required to self-register as ADMIN | dev default (override in prod) |
 
 The H2 database file is stored at `~/.question-service/question_db`, and its console is available at `/h2-console` when the app is running.
 

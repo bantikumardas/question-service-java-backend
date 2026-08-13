@@ -80,10 +80,10 @@ logging:
     org.hibernate.SQL: DEBUG
 
 frontend:
-  baseurl: ${FRONEND_BASE_URL}
+  baseurl: ${FRONEND_BASE_URL:http://localhost:5173}
 
 Admin:
-  key: ${ADMIN_KEY}
+  key: ${ADMIN_KEY:test-admin-key}
 management:
   endpoints:
     web:
