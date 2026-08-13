@@ -41,6 +41,17 @@ jobs:
           echo "HTTP status: $HTTP_CODE"
           echo "Response body:"
           cat /tmp/resp.txt
+          echo "=== Base URL check ==="
+          echo "JIRA_BASE=[$JIRA_BASE]"
+
+          echo "=== Raw /myself response ==="
+          curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/myself"
+          echo ""
+          echo "=== /myself HTTP status ==="
+          curl -s -o /dev/null -w "%{http_code}\n" \
+            -u "$JIRA_USER:$JIRA_TOKEN" \
+            "$JIRA_BASE/rest/api/2/myself"
           echo "Token belongs to:"
           curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
             "$JIRA_BASE/rest/api/2/myself" | jq '{email: .emailAddress, name: .displayName}'
