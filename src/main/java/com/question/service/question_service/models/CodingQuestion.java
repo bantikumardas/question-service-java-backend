@@ -31,17 +31,20 @@ public class CodingQuestion {
     @Column(name = "title", nullable = false, length = 200)
     private String title;
 
-    @Column(name = "description", nullable = false, columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "description", nullable = false)
     private String description;
 
     @ElementCollection
     @CollectionTable(name = "coding_question_paragraphs", joinColumns = @JoinColumn(name = "coding_question_id"))
-    @Column(name = "paragraph", columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "paragraph")
     @OrderColumn(name = "paragraph_index")
     private List<String> paragraphs;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @Column(name = "constraints", columnDefinition = "LONGTEXT")
+    @Lob
+    @Column(name = "constraints")
     @CollectionTable(name = "coding_question_constraints", joinColumns = @JoinColumn(name = "coding_question_id"))
     @OrderColumn(name = "constraint_index")
     private List<String> constraints;

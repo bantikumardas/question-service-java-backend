@@ -31,7 +31,8 @@ public class TestCase {
     @Column(name = "expected_output", nullable = false, length = 1000)
     private String expectedOutput;
 
-    @Column(name = "explanation", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "explanation")
     private String explanation;
 
     @Column(name = "is_hidden", nullable = false)
