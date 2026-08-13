@@ -1,0 +1,39 @@
+name: PR JIRA Check
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [ main ]
+
+jobs:
+  jira-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract & validate JIRA ID
+        id: jira
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Template line: "Jira ID :" followed by [KAN-7]
+          KEY=$(echo "$PR_BODY" | grep -oE '\[[A-Z]+-[0-9]+\]' | head -1 | tr -d '[]')
+          if [ -z "$KEY" ]; then
+            echo "::error::PR description must contain a JIRA ID like [KAN-7]"
+            exit 1
+          fi
+          echo "Found JIRA ID: $KEY"
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+
+      - name: Sync PR details to JIRA
+        env:
+          JIRA_BASE:  ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER:  ${{ secrets.JIRA_USER }}
+          JIRA_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          PR_URL:     ${{ github.event.pull_request.html_url }}
+          PR_TITLE:   ${{ github.event.pull_request.title }}
+          SHA:        ${{ github.event.pull_request.head.sha }}
+        run: |
+          curl -sf -u "$JIRA_USER:$JIRA_TOKEN" \
+            -X POST "$JIRA_BASE/rest/api/2/issue/${{ steps.jira.outputs.key }}/comment" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                  --arg body "PR: $PR_URL"$'\n'"Title: $PR_TITLE"$'\n'"Commit: $SHA" \
+                  '{body: $body}')"
