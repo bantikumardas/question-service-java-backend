@@ -110,9 +110,9 @@ jobs:
             --memory=650m \
             --restart unless-stopped \
             --env-file ~/.env \
+            -e SPRING_PROFILES_ACTIVE=prod \
             -e SPRING_JPA_HIBERNATE_DDL_AUTO=none \
             -e REDIS_HOST=redis \
-            -v ~/h2data:/root/.question-service \
             "$IMAGE"
 
           docker logout ghcr.io
