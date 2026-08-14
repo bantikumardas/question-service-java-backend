@@ -62,7 +62,7 @@ public class TestQuestion {
     private Integer orderIndex = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "level", nullable = false, length = 10)
+    @Column(name = "difficulty_level", nullable = false, length = 10)
     @Builder.Default
     private Level level = Level.MEDIUM;
 

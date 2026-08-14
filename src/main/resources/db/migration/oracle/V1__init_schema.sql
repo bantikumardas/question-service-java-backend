@@ -43,7 +43,7 @@ CREATE TABLE coding_question_paragraphs (
 
 CREATE TABLE coding_question_constraints (
     coding_question_id CHAR(36)     NOT NULL,
-    constraints        CLOB,
+    constraint_text     CLOB,
     constraint_index   NUMBER(10, 0) NOT NULL,
     PRIMARY KEY (coding_question_id, constraint_index),
     FOREIGN KEY (coding_question_id) REFERENCES coding_question (coding_question_id)
@@ -73,7 +73,7 @@ CREATE TABLE test_question (
     correct_option       VARCHAR2(1)  NOT NULL,
     marks                NUMBER(10, 0) DEFAULT 1 NOT NULL,
     order_index          NUMBER(10, 0) DEFAULT 0 NOT NULL,
-    level                VARCHAR2(10) DEFAULT 'MEDIUM' NOT NULL,
+    difficulty_level     VARCHAR2(10) DEFAULT 'MEDIUM' NOT NULL,
     PRIMARY KEY (question_id),
     FOREIGN KEY (test_id) REFERENCES test (test_id)
 );
