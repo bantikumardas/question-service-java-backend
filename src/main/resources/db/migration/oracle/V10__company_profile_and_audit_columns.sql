@@ -6,8 +6,8 @@ ALTER TABLE companies ADD email VARCHAR2(255);
 ALTER TABLE companies ADD CONSTRAINT uq_companies_email UNIQUE (email);
 
 ALTER TABLE companies ADD max_active_tests NUMBER(10, 0) DEFAULT 1 NOT NULL;
-ALTER TABLE companies ADD active BOOLEAN DEFAULT TRUE NOT NULL;
-ALTER TABLE companies ADD subscription_active BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE companies ADD active NUMBER(1, 0) DEFAULT 1 NOT NULL;
+ALTER TABLE companies ADD subscription_active NUMBER(1, 0) DEFAULT 0 NOT NULL;
 ALTER TABLE companies ADD subscription_expiry_date TIMESTAMP;
 ALTER TABLE companies ADD subscription_start_date TIMESTAMP;
 ALTER TABLE companies ADD created_time TIMESTAMP DEFAULT SYSDATE NOT NULL;

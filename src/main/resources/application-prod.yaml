@@ -17,13 +17,14 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
+        # application.yaml (base, shared across profiles) hardcodes H2Dialect for local dev.
+        # Profile YAML merges with the base rather than replacing it, so this must be
+        # overridden explicitly here or Oracle inherits the H2 dialect and breaks at startup.
+        dialect: org.hibernate.dialect.OracleDialect
         # Oracle has no native UUID column type; map UUID attributes to CHAR(36)
         # instead of Hibernate's Oracle default of RAW(16), matching the migrations below.
         type:
           preferred_uuid_jdbc_type: CHAR
-    # No explicit hibernate.dialect: let Hibernate auto-detect the Oracle version from
-    # the live connection so version-specific features (e.g. native BOOLEAN on 23c+,
-    # which Autonomous DB always runs) are picked up correctly.
 
   h2:
     console:
