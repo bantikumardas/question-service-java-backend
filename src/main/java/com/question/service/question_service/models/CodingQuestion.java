@@ -44,7 +44,7 @@ public class CodingQuestion {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Lob
-    @Column(name = "constraints")
+    @Column(name = "constraint_text")
     @CollectionTable(name = "coding_question_constraints", joinColumns = @JoinColumn(name = "coding_question_id"))
     @OrderColumn(name = "constraint_index")
     private List<String> constraints;

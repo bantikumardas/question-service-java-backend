@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS coding_question_paragraphs (
 
 CREATE TABLE IF NOT EXISTS coding_question_constraints (
     coding_question_id UUID    NOT NULL,
-    constraints        CLOB,
+    constraint_text     CLOB,
     constraint_index   INTEGER NOT NULL,
     PRIMARY KEY (coding_question_id, constraint_index),
     FOREIGN KEY (coding_question_id) REFERENCES coding_question (coding_question_id)
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS test_question (
     correct_option    VARCHAR(1)  NOT NULL,
     marks             INTEGER     NOT NULL DEFAULT 1,
     order_index       INTEGER     NOT NULL DEFAULT 0,
-    level             VARCHAR(10) NOT NULL DEFAULT 'MEDIUM',
+    difficulty_level  VARCHAR(10) NOT NULL DEFAULT 'MEDIUM',
     PRIMARY KEY (question_id),
     FOREIGN KEY (test_id) REFERENCES test (test_id)
 );
