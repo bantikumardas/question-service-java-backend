@@ -66,7 +66,11 @@ class CompanyControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.companyName").value("Acme"));
+
+
+
+                .andExpect(jsonPath("$.data.companyName").value("Acme"))
+                .andExpect(jsonPath("$.data.emailDomain").value("acme.com"));
     }
 
     @Test
@@ -101,6 +105,7 @@ class CompanyControllerTest {
 
         mockMvc.perform(get("/api/company/fetch/all"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].companyName").value("Acme"));
+                .andExpect(jsonPath("$.data[0].companyName").value("Acme"))
+                .andExpect(jsonPath("$.data[0].emailDomain").value("acme.com"));
     }
 }

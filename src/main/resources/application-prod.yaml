@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@${ORACLE_CONNECT_DESCRIPTOR}
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: ${ORACLE_DB_USER}
+    password: ${ORACLE_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 20000
+
+  flyway:
+    locations: classpath:db/migration/{vendor}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        # Oracle has no native UUID column type; map UUID attributes to CHAR(36)
+        # instead of Hibernate's Oracle default of RAW(16), matching the migrations below.
+        type:
+          preferred_uuid_jdbc_type: CHAR
+    # No explicit hibernate.dialect: let Hibernate auto-detect the Oracle version from
+    # the live connection so version-specific features (e.g. native BOOLEAN on 23c+,
+    # which Autonomous DB always runs) are picked up correctly.
+
+  h2:
+    console:
+      enabled: false
