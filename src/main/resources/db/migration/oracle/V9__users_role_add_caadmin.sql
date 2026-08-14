@@ -1,0 +1,1 @@
+ALTER TABLE users ADD CONSTRAINT chk_users_role CHECK (role IN ('ADMIN', 'CANDIDATE', 'CAADMIN'));

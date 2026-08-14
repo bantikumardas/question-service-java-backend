@@ -1,0 +1,1 @@
+ALTER TABLE test ADD is_created_by_admin BOOLEAN DEFAULT FALSE NOT NULL;
