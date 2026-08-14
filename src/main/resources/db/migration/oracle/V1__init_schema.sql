@@ -55,8 +55,8 @@ CREATE TABLE test_case (
     input              VARCHAR2(1000) NOT NULL,
     expected_output    VARCHAR2(1000) NOT NULL,
     explanation        CLOB,
-    is_hidden          BOOLEAN DEFAULT FALSE NOT NULL,
-    is_example         BOOLEAN DEFAULT FALSE NOT NULL,
+    is_hidden          NUMBER(1, 0) DEFAULT 0 NOT NULL,
+    is_example         NUMBER(1, 0) DEFAULT 0 NOT NULL,
     PRIMARY KEY (test_case_id),
     FOREIGN KEY (coding_question_id) REFERENCES coding_question (coding_question_id)
 );
@@ -70,7 +70,7 @@ CREATE TABLE test_question (
     option_b             CLOB         NOT NULL,
     option_c             CLOB         NOT NULL,
     option_d             CLOB         NOT NULL,
-    correct_option       VARCHAR2(1)  NOT NULL,
+    correct_option       CHAR(1)      NOT NULL,
     marks                NUMBER(10, 0) DEFAULT 1 NOT NULL,
     order_index          NUMBER(10, 0) DEFAULT 0 NOT NULL,
     difficulty_level     VARCHAR2(10) DEFAULT 'MEDIUM' NOT NULL,
