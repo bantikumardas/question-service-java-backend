@@ -2,10 +2,7 @@ package com.question.service.question_service.controller;
 
 import com.question.service.question_service.dto.request.CreateTestRequest;
 import com.question.service.question_service.dto.request.SendTestInvite;
-import com.question.service.question_service.dto.response.AdminTestResponse;
-import com.question.service.question_service.dto.response.ApiResponse;
-import com.question.service.question_service.dto.response.PagedResponse;
-import com.question.service.question_service.dto.response.TestResponse;
+import com.question.service.question_service.dto.response.*;
 import com.question.service.question_service.service.TestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -65,6 +63,21 @@ public class TestController {
         System.out.println("Send Invite api is called");
         String response=testService.sendTestInvite(testId, invite.getEmails());
         return ResponseEntity.ok(ApiResponse.success("Success", response));
+    }
+
+    @GetMapping("bulk-template/{testId}")
+    public ResponseEntity<ApiResponse<BulkTemplateResponse>> getBulkTemplate(@PathVariable UUID testId) {
+        BulkTemplateResponse response=testService.getBulkTemplate(testId);
+        return ResponseEntity.ok(ApiResponse.success("Success", response));
+    }
+
+    @PostMapping("bulk-upload")
+    public ResponseEntity<ApiResponse<BulkUploadResponse>> bulkUpload(@RequestParam("file") MultipartFile file) {
+        BulkUploadResponse response = testService.bulkUpload(file);
+        String message = response.getFailed() == 0
+                ? "Bulk upload successful"
+                : "Bulk upload completed with " + response.getFailed() + " failed row(s)";
+        return ResponseEntity.ok(ApiResponse.success(message, response));
     }
 
 }
