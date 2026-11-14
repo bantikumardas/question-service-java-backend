@@ -45,4 +45,17 @@ public class AsyncConfig implements AsyncConfigurer {
         return (Throwable ex, Method method, Object... params) ->
                 log.error("Uncaught exception in async method '{}'", method.getName(), ex);
     }
+
+    @Bean(name = "bulkUploadExecutor")
+    public ThreadPoolTaskExecutor bulkUploadTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("bulk-upload-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.initialize();
+        return executor;
+    }
 }

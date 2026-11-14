@@ -2,8 +2,11 @@ package com.question.service.question_service.service;
 
 import com.question.service.question_service.dto.request.CreateTestRequest;
 import com.question.service.question_service.dto.response.AdminTestResponse;
+import com.question.service.question_service.dto.response.BulkTemplateResponse;
+import com.question.service.question_service.dto.response.BulkUploadResponse;
 import com.question.service.question_service.dto.response.TestResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -18,5 +21,9 @@ public interface TestService {
     void changeTestStatus(UUID testId, String targetStatus);
 
     String sendTestInvite(UUID testId, String emails);
+
+    BulkTemplateResponse getBulkTemplate(UUID testId);
+
+    BulkUploadResponse bulkUpload(MultipartFile file);
 
 }
